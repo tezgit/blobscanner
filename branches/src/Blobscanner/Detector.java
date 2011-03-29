@@ -1,6 +1,6 @@
 /**
  *
- * This library is for the Processing programming environment
+ (c) Antonio Molinaro 2011 * This library is for the Processing programming environment
  * and can be used for blob detection and analysis in
  * any type of image and video (included live stream
  * from web cam or other video sources). It's useful, also
@@ -10,8 +10,8 @@
  * so please if you find a bug or if you have a suggestion
  * drop me a line at blobdetector.info@gmail.com or visit the
  * project site http://sites.google.com/site/blobscanner/home.
- * 
- * @version 0.1
+ *
+ * @version 0.3
  * @author Antonio Molinaro
  * @date 30-12-2010
  *
@@ -82,8 +82,8 @@ private int sy;
 /** The total blobs number for the current frame. */
 private int blobNumber;
 
-/** The total number of pixels belonging to blobs in the current frame. */
-private int totalBlobsWeight;
+/** The total number of pixels belonging to blobs in the current frame. *///--> DA CANCELLARE
+//private int totalBlobsWeight;
 
 /** Holds the list of the weight of each blob in the current frame. */
 private int blobWeightList[];
@@ -162,8 +162,7 @@ this.h = h;
         for (int y = sy; y < h; y++) {
             for (int x = sx; x < w; x++) {
                 //if is blob label with 1
-                if (PApplet.abs(p5.brightness(pix_array[x + y * trueWidth])) > threshold
-                        && PApplet.abs(p5.brightness(pix_array[x + y * trueWidth])) < threshold + 2 ) {
+                if (threshold == (int)  PApplet.abs(p5.brightness(pix_array[x + y * trueWidth]))  ) {
                     MyGroup[y][x] = 1;
                     countBlobPixel++;//total blob's pixels
                 } else {
@@ -178,7 +177,7 @@ this.h = h;
     }
 
 
-    
+
 /**
  * Fills the pixels group buffer in case you
  * need work on a PImage object.
@@ -193,8 +192,7 @@ this.h = h;
         for (int y = sy; y < h; y++) {
             for (int x = sx; x < w; x++) {
                 //if is blob label with 1
-                if (PApplet.abs(p5.brightness(img.get(x, y))) > threshold
-                        && PApplet.abs(p5.brightness(img.get(x, y))) < threshold + 2 ) {
+                if (threshold ==  (int)PApplet.abs(p5.brightness(img.get(x, y)))  ) {
                     MyGroup[y][x] = 1;
                     countBlobPixel++;//increment total blob's pixels
                 } else {
@@ -238,14 +236,14 @@ this.h = h;
 /**
  * The smallest label found locally
  *  when <code>dx[]</code> and <code>dy[]</code>
- *  kernels  are applied on the pixel.
+ *  kernels  are applied to the pixel.
  */
         int smallLabel = 0;
 
         for (int y = sy  ; y < h  ; y++) {
             for (int x = sx  ; x < w  ; x++) {
 
-                if(x < w-1 && x >0 && y <=  h-1  && y > 0){
+                if(x < w-1  && x > 0 && y <   h   && y >  0){
                 //if is a blob pixel apply kernel
                 if (MyGroup[y][x] == 1)
                 {
@@ -290,7 +288,7 @@ this.h = h;
         for (int y = h  ; y > sy  ; y--) {
             for (int x = w  ; x > sx  ; x--) {
 
-                if(x < w-1 && x >0 && y <=  h-1  && y > 0){
+                if(x < w-1  && x > 0 && y <   h   && y >  0){
 
                 if (MyLabels[y][x] > 0) {
                     int labelLocallList_2[] = new int[4];
@@ -322,7 +320,7 @@ this.h = h;
         int index = 0;
         if (countBlobPixel > 0) {
             int labelTab[] = new int[countBlobPixel];
-            totalBlobsWeight = 0;
+           // totalBlobsWeight = 0;
 
             for (int y = sy; y < h; y++) {
                 for (int x = sx; x < w; x++) {
@@ -335,7 +333,7 @@ this.h = h;
 
                 }
             }
-            totalBlobsWeight = index;
+           // totalBlobsWeight = countBlobPixel;
              index = 0;
 
 
@@ -353,8 +351,9 @@ this.h = h;
  * for each frame or image. This method must be called
  * before calling <code>getBlobWeight(int blobNum)</code> ,
  * <code>getBlobWeightLabel(int label)</code>  ,
- * <code>drawSelectBox(int minimumWeight,int boxColor,float thickness) </code>
- * and <code>drawSelectContours(int minimumWeight,int contourColor,float thickness)</code> methods.
+ * <code>drawSelectBox(int minimumWeight,int boxColor,float thickness) </code>,
+ * <code>drawSelectContours(int minimumWeight,int contourColor,float thickness)</code> and
+ * <code>findCentroids(boolean, boolean)</code>methods.
  * @param printsConsoleIfZero
  * If <code> true,</code> the methods will
  * print a message to the console if
@@ -369,7 +368,7 @@ this.h = h;
 
 
 
-     if(totalBlobsWeight > 0){
+     if(countBlobPixel > 0){
 
      blobWeightList = new int[blobNumber];
 
@@ -422,12 +421,16 @@ this.h = h;
   public boolean isEdge(int x, int y){
 
   int count = 0;
+  
+
+
 
           if(MyLabels[y][x]>0 )
 
                 for(int s = 0; s < 8; s++)
                 {
-                 if( MyLabels[ y + ykern[s] ][ x + xkern[s] ]==0)
+                 if(x + xkern[s]< w  && x + xkern[s]>=0 && y + ykern[s]<   h   && y + ykern[s]>= 0
+                         && MyLabels[ y + ykern[s] ][ x + xkern[s] ]==0)
                 {
                      count++;
                 }
@@ -440,7 +443,7 @@ this.h = h;
 
 
 /**
- * Draws the edges of each blob.
+ * Draws the edge  of each blob.
  * @param contoursColor The edges color. Here it can be passed color( r, g, b)
  * Processing function.
  * This parameter is passed to <code>stroke</code> Processing function.
@@ -478,7 +481,7 @@ this.h = h;
  * Draws the blob's contours only for blob
  * which weight is bigger than or equals to
  * <code> minimumWeight</code> parameter value.
- * Before call this method <code> weightBlobs(boolean) </code>
+ * Before to call this method <code> weightBlobs(boolean) </code>
  * and <code>loadBlobsFeatures() </code> methods must be called.
  * @param  minimumWeight The minimum weight of the blob which contours are drawn
  * @param  contoursColor The edges color. Here it can be passed color( r, g, b)
@@ -508,7 +511,7 @@ this.h = h;
           }
 
 
-   
+
        //reset to default strokeWeight and stroke
         p5.stroke(0);
         p5.strokeWeight(1);
@@ -583,7 +586,7 @@ this.h = h;
 
 
 /**
- * Removes all 0s values from <code> arra</code>
+ * Removes all 0s values from <code> arra </code>
  * condensing the rest of the values.
  * @param arra The array to process.
  * @return a The new array with the condensed values.
@@ -625,7 +628,7 @@ this.h = h;
  * @return Returns true if at x y location finds a blob pixels.
  */
     public boolean isBlob(int x, int y) {
-        if (MyLabels[y][x] > 0) {
+        if(x < w  && x >=0 && y <   h   && y >= 0 && MyLabels[y][x] > 0){
             return true;
         } else {
             return false;
@@ -658,14 +661,14 @@ this.h = h;
 
         //If we have blobs...
         if(getBlobsNumber() > 0){
-        plotX = new int[blobNumber][totalBlobsWeight];
-        plotY = new int[blobNumber][totalBlobsWeight];
+        plotX = new int[blobNumber][countBlobPixel];
+        plotY = new int[blobNumber][countBlobPixel];
         //For each blob...
         for(int k=0;  k <labelTab2.length; k++){
          int i=0;
         //Inizialize two arrays to hold the blob's edges point coordinates.
-        edgeX = new int[totalBlobsWeight];
-        edgeY = new int[ totalBlobsWeight];
+        edgeX = new int[countBlobPixel];
+        edgeY = new int[ countBlobPixel];
 
 
       //For each pixel
@@ -715,7 +718,7 @@ this.h = h;
     B[k] = new PVector(Bx, By);
     C[k] = new PVector(Cx, Cy);
     D[k] = new PVector(Dx, Dy);
- 
+
 
     crosspoints[k][0] = new PVector(((Bx-Ax)/2)+Ax,Ay);
     crosspoints[k][1] = new PVector( ((Bx-Ax)/2)+Ax,Cy);
@@ -820,8 +823,8 @@ this.h = h;
     float [] Y ;     //coordinate along bounding box height
     float [] lx;     //number of blob pixel per row
     float [] ly;     //number of blob pixel per colon
-    float [] sumX  ; // all the products of x times blob pixel per row
-    float [] sumY  ;
+    float [] sumX  ;  // all the products of x and y coordinates
+    float [] sumY  ;  // for the number of pixels for each row and colon
     float centx = 0;
     float centy = 0;
     CenterOfMX = new float[blobNumber];
@@ -836,13 +839,13 @@ this.h = h;
 
 
 
-    X = new float   [getBlobWidth(k)];//coordinate along bounding box width
-    Y = new float   [getBlobHeight(k)];//coordinate along bounding box height
-    lx = new float  [getBlobHeight(k)] ;//number of blob pixel per row
-    ly = new float  [getBlobWidth(k)] ;//number of blob pixel per colon
-    sumX = new float[getBlobWidth(k)]; //all the products of x and y coordinates
-    sumY = new float[getBlobHeight(k)];//for the number of pixel for each row and colon
-    
+    X = new float   [getBlobWidth(k)];
+    Y = new float   [getBlobHeight(k)];
+    lx = new float  [getBlobHeight(k)] ;
+    ly = new float  [getBlobWidth(k)] ;
+    sumX = new float[getBlobWidth(k)];
+    sumY = new float[getBlobHeight(k)];
+
      for(float x =  getA()[k].x  ; x <= getB()[k].x  ; x++){
 
 
@@ -859,11 +862,8 @@ this.h = h;
 
   for(float y =  getA()[k].y   ; y <=  getC()[k].y   ; y++){
 
-
-
        Y[countY] = y;
        countY++;
-
 
   }
    int cx = 0;
@@ -915,7 +915,7 @@ this.h = h;
    sumx +=  sumX[i];
  }
  for(int i = 0; i < getBlobHeight(k);i++){
-   sumY[i] = Y[i] *lx[i];
+   sumY[i] = Y[i] * lx[i];
    sumy +=   sumY[i];
  }
 
@@ -942,13 +942,13 @@ this.h = h;
  *
  * Returns the blob centroid x coordinate.
  * This method must be call after the <code>
- * findCentroids(boolean printMessage)</code>
+ * findCentroids(boolean,boolean)</code>
  * methods has been called.
  *
  *
  * @param blobnumber The blob for which the centroid is returned.
  * @return the blob centroid x coordinates.
- * @see findCentroids(boolean printMessage)
+ * @see findCentroids(boolean,boolean)
  */
 
    public float getCentroidX(int blobnumber)
@@ -963,16 +963,15 @@ this.h = h;
 
 /**
  *
- *
  * Returns the blob  centroid y coordinate.
  * This method must be call after the <code>
- * findCentroids(boolean printMessage)</code>
- * methods has been called.
+ * findCentroids(boolean,boolean)</code>
+ * method has been called.
  *
  *
  * @param blobnumber The blob for which the centroid is returned.
  * @return the blob centroid y coordinates.
- * @see findCentroids(boolean printMessage)
+ * @see findCentroids(boolean,boolean)
  */
 
    public float getCentroidY(int blobnumber)
@@ -1000,12 +999,12 @@ this.h = h;
 /**
  * Get the total weight for all  the blobs in the current
  * frame or image.
- * @return The total weight for all  the blobs in the current
+ * @return countBlobPixel The total weight for all  the blobs in the current
  * frame or image.
  */
 
     public int getGlobalWeight() {
-        return totalBlobsWeight;
+        return countBlobPixel;
     }
 
 
@@ -1041,13 +1040,18 @@ this.h = h;
  * @return The  weight values of the blob
  * labelled with  <code>label</code>.
  * @see #weightBlobs(boolean)
+ * @see #getLabel(int)
+ * @see #getLabel(int, int)
  */
     public int getBlobWeightLabel(int label) {
         int cnt = 0;
         while (labelTab2[cnt] != label) {
             cnt++;
         }
+
         return blobWeightList[cnt];
+        
+
     }
 
 
@@ -1058,9 +1062,9 @@ this.h = h;
  * To call this method,
  * the <code>loadBlobsFeatures()
  * </code> method must be called first.
- * @return A An array of PVectors
- * which contains all the left upper corners
- * of the blobs bounding boxes.
+ * @return A An array of PVectors.
+ * Each vector represents the left upper corner
+ * of a blob's  bounding box.
  *
  */
 public PVector[] getA() {
@@ -1074,9 +1078,9 @@ public PVector[] getA() {
  * To call this method,
  * the <code>loadBlobsFeatures()
  * </code> method must be called first.
- * @return B An array of PVectors
- * which contains all the right upper corners
- * of the blobs bounding boxes.
+ * @return B An array of PVectors.
+ * Each vector represents the right upper corner
+ * of a blob's  bounding box .
  */
 public PVector[] getB() {
     return B;
@@ -1089,9 +1093,9 @@ public PVector[] getB() {
  * To call this method,
  * the <code>loadBlobsFeatures()
  * </code> method must be called first.
- * @return C  An array of PVectors
- * which contains all the left lower corners
- * of the blobs bounding boxes.
+ * @return C  An array of PVectors.
+ * Each vector represents the left lower corner
+ * of a blob's bounding box .
  */
 public PVector[] getC() {
     return C;
@@ -1104,9 +1108,9 @@ public PVector[] getC() {
  * To call this method,
  * the <code>loadBlobsFeatures()
  * </code> method must be called first.
- * @return D An array of PVectors
- * which contains all the right lower corners
- * of the blobs bounding boxes.
+ * @return D An array of PVectors.
+ * Each vector represents the right lower corner
+ * of a blob's bounding box .
  */
 public PVector[] getD() {
     return D;
@@ -1116,7 +1120,7 @@ public PVector[] getD() {
 /**
  *
  * Returns the blob's label
- * at  <code> x, y </code>screen  coordinates.
+ * at  <code> x, y </code> screen  coordinates.
  * If at that location there is no blob
  * returns 0.
  * @param x The x screen coordinates.
@@ -1126,7 +1130,9 @@ public PVector[] getD() {
  */
 
 public int getLabel(int x, int y) {
+if(x < w  && x >=0 && y <   h   && y >= 0)
 return MyLabels[y][x];
+else return 0;
 }
 
 
@@ -1159,10 +1165,12 @@ public int getLabel(int blobnumber) {
  * To call this method,
  * the <code>loadBlobsFeatures()
  * </code> method must be called first.
- * @param blobnumber The blob which edges are computed.
- * @param index The edge point ( starts from 0 ).
+ * @param blobnumber The blob which edges are computed for.
+ * @param index The edge point (check with <code>isEdge()</code>).
  * @return  x coordinates
  * of the edge pixels.
+ * @see loadBlobsFeatures()
+ * @see isEdge()
  */
 public int getEdgeX(int blobnumber, int index) {
     return plotX[blobnumber][index];
@@ -1177,9 +1185,10 @@ public int getEdgeX(int blobnumber, int index) {
  * </code> method must be called first.
  *
  * @param blobnumber The blob which edges are computed.
- * @param index The edge point ( starts from 0 ).
+ * @param index The edge point ( check with <code>isEdge()</code> ).
  * @return  y coordinates
- * of the edge pixels.
+ * of the edge pixels .
+ * @see isEdge()
  */
 public int getEdgeY(int blobnumber, int index) {
     return plotY[blobnumber][index];
@@ -1197,12 +1206,12 @@ public int getEdgeY(int blobnumber, int index) {
  * x y of a blob edge pixel.
  */
 public PVector getEdgeXY(int index) {
-    PVector[] edgeXY = new PVector[totalBlobsWeight];
+    PVector[] edgeXY = new PVector[countBlobPixel];
 
     int count = 0;
 
     for (int i = 0; i < blobNumber; i++) {
-        for (int j = 0; j < totalBlobsWeight; j++) {
+        for (int j = 0; j < countBlobPixel; j++) {
 
             if (getEdgeX(i, j) != 0 && getEdgeY(i, j) != 0) {
 
